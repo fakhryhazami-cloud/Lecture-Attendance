@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture Attendance System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #F3F4F6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-container {
+            display: flex;
+            height: 100vh;
+        }
+        .left-side {
+            flex: 1;
+            background: linear-gradient(135deg, #6B46C1, #F3F4F6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: white;
+        }
+        .left-side h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .left-side p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+        }
+        .right-side {
+            flex: 1;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            position: relative;
+            z-index: 10;
+        }
+        .login-form {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            z-index: 20;
+        }
+        .login-form h2 {
+            margin-bottom: 20px;
+            color: #6B46C1;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #D1D5DB;
+            border-radius: 5px;
+        }
+        .login-form label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #374151;
+            cursor: pointer;
+        }
+        .login-form label input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.1);
+        }
+        .login-form button {
+            width: 100%;
+            padding: 10px;
+            background: #6B46C1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+            z-index: 30;
+        }
+        .login-form button:hover {
+            background: #553C9A;
+        }
+        .login-form button:disabled {
+            background: #9CA3AF;
+            cursor: not-allowed;
+        }
+        .contact {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #6B46C1;
+        }
+        .loading-message {
+            margin-top: 10px;
+            color: #6B46C1;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .homepage, .dashboard, .profile-page, .admin-panel {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .welcome-section {
+            text-align: center;
+            padding: 40px;
+        }
+        .welcome-section h2 {
+            margin-bottom: 20px;
+        }
+        .welcome-section p {
+            margin-bottom: 30px;
+        }
+        #goToDashboard {
+            padding: 10px 20px;
+            background: #6B46C1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #goToDashboard:hover {
+            background: #553C9A;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #E5E7EB;
+            border-bottom: 1px solid #D1D5DB;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        .header-left h1 {
+            margin-left: 20px;
+        }
+        .hamburger {
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+        .header-right {
+            display: flex;
+            gap: 15px;
+        }
+        .icon {
+            cursor: pointer;
+            font-size: 1.5rem;
+            position: relative;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #EF4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .main {
+            flex: 1;
+            padding: 40px;
+            background: white;
+        }
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .search-bar input {
+            width: 60%;
+            padding: 10px;
+            border: 1px solid #D1D5DB;
+            border-radius: 5px 0 0 5px;
+        }
+        .search-bar select {
+            padding: 10px;
+            border: 1px solid #D1D5DB;
+            border-left: none;
+            border-radius: 0 5px 5px 0;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #D1D5DB;
+        }
+        th {
+            background: #F9FAFB;
+            font-weight: bold;
+        }
+        .attendance-select {
+            padding: 5px;
+            border: 1px solid #D1D5DB;
+            border-radius: 3px;
+        }
+        .attendance-select:disabled {
+            background: #F3F4F6;
+            cursor: not-allowed;
+        }
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #E5E7EB;
+            border-top: 1px solid #D1D5DB;
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            padding: 40px;
+        }
+        .profile-image img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid #6B46C1;
+            margin-right: 20px;
+        }
+        .profile-info h2 {
+            margin-bottom: 10px;
+        }
+        .profile-info p {
+            margin-bottom: 10px;
+        }
+        #resetPasswordBtn, #downloadReportBtn {
+            padding: 10px 20px;
+            background: #6B46C1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        #resetPasswordBtn:hover, #downloadReportBtn:hover {
+            background: #553C9A;
+        }
+        .logout {
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #6B46C1;
+            display: flex;
+            align-items: center;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            background: #E5E7EB;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .tab-button.active {
+            background: #6B46C1;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .add-button {
+            padding: 10px 20px;
+            background: #10B981;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .add-button:hover {
+            background: #059669;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .admin-table th, .admin-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #D1D5DB;
+        }
+        .admin-table th {
+            background: #F9FAFB;
+        }
+        .delete-btn {
+            padding: 5px 10px;
+            background: #EF4444;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background: #DC2626;
+        }
+        .edit-btn {
+            padding: 5px 10px;
+            background: #F59E0B;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .edit-btn:hover {
+            background: #D97706;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background: #F9FAFB;
+            transition: left 0.3s;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 999;
+        }
+        .sidebar.show {
+            left: 0;
+        }
+        .sidebar ul {
+            list-style: none;
+        }
+        .sidebar li {
+            margin-bottom: 15px;
+        }
+        .sidebar a {
+            text-decoration: none;
+            color: #374151;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 998;
+        }
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        .notification-dropdown {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 100px;
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #D1D5DB;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1001;
+        }
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #F9FAFB;
+            border-bottom: 1px solid #D1D5DB;
+        }
+        .notification-list {
+            padding: 10px;
+        }
+        .notification-item {
+            padding: 10px;
+            border-bottom: 1px solid #F3F4F6;
+            margin-bottom: 5px;
+        }
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        .notification-item.unread {
+            background: #EEF2FF;
+        }
+
+        .reset-password-dialog, .forgot-password-dialog, .user-dialog, .schedule-dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            overflow-y: auto;
+        }
+        .dialog-content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 100%;
+            margin: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .dialog-content h3 {
+            margin-bottom: 20px;
+            color: #6B46C1;
+        }
+        .dialog-content p {
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+        .dialog-content input, .dialog-content select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #D1D5DB;
+            border-radius: 5px;
+        }
+        .dialog-content label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #374151;
+        }
+        .dialog-content button {
+            padding: 10px 20px;
+            margin: 5px 5px 5px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #6B46C1;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #553C9A;
+        }
+        .btn-secondary {
+            background: #D1D5DB;
+            color: #374151;
+        }
+        .btn-secondary:hover {
+            background: #B3B3B3;
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 5px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .overlay.show {
+            display: flex;
+        }
+        .access-denied {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .access-denied svg {
+            width: 50px;
+            height: 50px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-container" id="login">
+        <div class="left-side">
+            <h1>Lecture Attendance System</h1>
+            <p>Smart Attendance Tracking for Every Lecturer</p>
+        </div>
+        <div class="right-side">
+            <form class="login-form" id="loginForm">
+                <h2>Login</h2>
+                <input type="email" id="loginEmail" placeholder="Email" required value="admin@campus.ac.id">
+                <input type="password" id="loginPassword" placeholder="Password" required value="admin123">
+                <label><input type="checkbox"> Remember me</label>
+                <a href="#" id="forgotPasswordLink" style="color: #6B46C1; text-decoration: none; display: block; margin-bottom: 15px;">Forgot password?</a>
+                <button type="submit" id="loginButton">Login</button>
+                <div class="loading-message" id="loadingMessage"></div>
+            </form>
+            <div class="contact">contact@campus.ac.id</div>
+        </div>
+    </div>
+
+    <!-- Homepage -->
+    <div class="homepage" id="homepage">
+        <header class="header">
+            <div class="header-left">
+                <div class="hamburger" id="hamburgerHome">☰</div>
+                <h1>LOGO</h1>
+            </div>
+            <div class="header-right">
+                <div class="icon" id="profileHome">👤</div>
+                <div class="icon" id="searchHome">🔍</div>
+                <div class="icon" id="notificationHome">
+                    🔔
+                    <span class="notification-badge" id="notifBadgeHome" style="display: none;">0</span>
+                </div>
+                <div class="icon" id="editHome">✏️</div>
+            </div>
+        </header>
+        <main class="main">
+            <div class="welcome-section">
+                <h2>Welcome to the Lecture Attendance System</h2>
+                <p>Smart attendance tracking for every lecturer. Manage lecture schedules, monitor attendance, and improve academic efficiency.</p>
+                <button id="goToDashboard">Go to Dashboard</button>
+            </div>
+        </main>
+        <footer class="footer">
+            <div>LOGO</div>
+            <div>Address: University Campus, City ABC</div>
+            <div>Contact Us: www.campus.ac.id | contact@campus.ac.id</div>
+        </footer>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <header class="header">
+            <div class="header-left">
+                <div class="hamburger" id="hamburger">☰</div>  
+                <h1>LOGO</h1>
+            </div>
+            <div class="header-right">
+                <div class="icon" id="profile">👤</div>
+                <div class="icon" id="search">🔍</div>
+                <div class="icon" id="notification">
+                    🔔
+                    <span class="notification-badge" id="notifBadge" style="display: none;">0</span>
+                </div>
+                <div class="icon" id="edit">✏️</div>
+            </div>
+        </header>
+        <main class="main">
+            <div class="search-bar">
+                <input type="text" placeholder="Search..." id="searchInput">
+                <select id="sortSelect">
+                    <option value="">Sort By</option>
+                    <option value="date">Date</option>
+                    <option value="subject">Subject</option>
+                    <option value="day">Day</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Day & Date</th>
+                            <th>Lecturer Name</th>
+                            <th>Subject</th>
+                            <th>Room</th>
+                            <th>Attendance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </main>
+        <footer class="footer">
+            <div>LOGO</div>
+            <div>Address: University Campus, City ABC</div>
+            <div>Contact Us: www.campus.ac.id | contact@campus.ac.id</div>
+        </footer>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <header class="header">
+            <div class="header-left">
+                <div class="hamburger" id="hamburgerAdmin">☰</div>  
+                <h1>ADMIN PANEL</h1>
+            </div>
+            <div class="header-right">
+                <div class="logout" id="logoutAdmin">
+                    <i class="fa fa-sign-out" style="font-size: 24px; margin-right: 5px;"></i>
+                    <span>Logout</span>
+                </div>
+            </div>
+        </header>
+        <main class="main">
+            <div class="admin-tabs">
+                <button class="tab-button active" data-tab="users">Manage Users</button>
+                <button class="tab-button" data-tab="schedules">Manage Schedules</button>
+            </div>
+
+            <div class="tab-content active" id="usersTab">
+                <button class="add-button" id="addUserBtn">+ Add New User</button>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Name</th>
+                                <th>ID Number</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-content" id="schedulesTab">
+                <button class="add-button" id="addScheduleBtn">+ Add New Schedule</button>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Lecturer</th>
+                                <th>Subject</th>
+                                <th>Room</th>
+                                <th>Days</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedulesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+        <footer class="footer">
+            <div>LOGO</div>
+            <div>Address: University Campus, City ABC</div>
+            <div>Contact Us: www.campus.ac.id | contact@campus.ac.id</div>
+        </footer>
+    </div>
+
+    <!-- Profile Page -->
+    <div class="profile-page" id="profilePage">
+        <header class="header">
+            <div class="header-left">
+                <div class="hamburger" id="hamburgerProfile">☰</div>  
+                <h1>LOGO</h1>  
+            </div>
+            <div class="header-right">
+                <div class="logout" id="logout">
+                    <i class="fa fa-sign-out" style="font-size: 24px; margin-right: 5px;"></i>
+                    <span>Logout</span>
+                </div>
+            </div>
+        </header>
+        <main class="main">
+            <div class="profile-container">
+                <div class="profile-image">
+                    <img src="https://via.placeholder.com/100" alt="Profile Picture">
+                </div>
+                <div class="profile-info">
+                    <h2 id="fullname">Full Name</h2>
+                    <p><strong>User ID:</strong> <span id="userId"></span></p>
+                    <p><strong>Email:</strong> <span id="userEmail"></span></p>
+                    <button id="resetPasswordBtn">Reset Password</button>
+                    <button id="downloadReportBtn" style="display: none;">Download Monthly Report (PDF)</button>
+                </div>
+            </div>
+        </main>
+        <footer class="footer">
+            <div>LOGO</div>
+            <div>Address: University Campus, City ABC</div>
+            <div>Contact Us: www.campus.ac.id | contact@campus.ac.id</div>
+        </footer>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul>
+            <li><a href="#" id="homeLink">Home Page</a></li>
+            <li><a href="#" id="dashboardLink">Dashboard</a></li>
+            <li id="adminMenuLink" style="display: none;"><a href="#" id="adminLink">Admin Panel</a></li>
+        </ul>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Notification Dropdown -->
+    <div class="notification-dropdown" id="notificationDropdown">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button id="closeNotification" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">✕</button>
+        </div>
+        <div class="notification-list" id="notificationList"></div>
+    </div>
+
+    <!-- Dialogs -->
+    <div class="user-dialog" id="userDialog">
+        <div class="dialog-content">
+            <h3 id="userDialogTitle">Add New User</h3>
+            <form id="userForm">
+                <label>Email</label>
+                <input type="email" id="userFormEmail" required>
+                <label>Password</label>
+                <input type="password" id="userFormPassword" required>
+                <label>Full Name</label>
+                <input type="text" id="userFormName" required>
+                <label>ID Number</label>
+                <input type="text" id="userFormId" required>
+                <label>Role</label>
+                <select id="userFormRole" required>
+                    <option value="">Select Role</option>
+                    <option value="student">Student</option>
+                    <option value="lecturer">Lecturer</option>
+                    <option value="admin">Admin</option>
+                </select>
+                <input type="hidden" id="userFormKey">
+                <button type="submit" class="btn-primary">Save</button>
+                <button type="button" class="btn-secondary" id="cancelUserForm">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="schedule-dialog" id="scheduleDialog">
+        <div class="dialog-content">
+            <h3 id="scheduleDialogTitle">Add New Schedule</h3>
+            <form id="scheduleForm">
+                <label>Lecturer</label>
+                <select id="scheduleFormLecturer" required>
+                    <option value="">Select Lecturer</option>
+                </select>
+                <label>Subject</label>
+                <input type="text" id="scheduleFormSubject" required>
+                <label>Room</label>
+                <input type="text" id="scheduleFormRoom" required>
+                <label>Days</label>
+                <div class="checkbox-group" id="daysCheckboxGroup">
+                    <label><input type="checkbox" name="days" value="Senin"> Senin</label>
+                    <label><input type="checkbox" name="days" value="Selasa"> Selasa</label>
+                    <label><input type="checkbox" name="days" value="Rabu"> Rabu</label>
+                    <label><input type="checkbox" name="days" value="Kamis"> Kamis</label>
+                    <label><input type="checkbox" name="days" value="Jumat"> Jumat</label>
+                    <label><input type="checkbox" name="days" value="Sabtu"> Sabtu</label>
+                    <label><input type="checkbox" name="days" value="Minggu"> Minggu</label>
+                </div>
+                <input type="hidden" id="scheduleFormKey">
+                <button type="submit" class="btn-primary">Save</button>
+                <button type="button" class="btn-secondary" id="cancelScheduleForm">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="reset-password-dialog" id="resetPasswordDialog">
+        <div class="dialog-content">
+            <h3>Reset Password</h3>
+            <input type="password" placeholder="Old Password" id="oldPassword">
+            <input type="password" placeholder="New Password" id="newPassword">
+            <input type="password" placeholder="Confirm New Password" id="confirmPassword">
+            <button class="btn-primary" id="submitReset">Reset</button>
+            <button class="btn-secondary" id="cancelReset">Cancel</button>
+        </div>
+    </div>
+
+    <div class="forgot-password-dialog" id="forgotPasswordDialog">
+        <div class="dialog-content">
+            <h3>Forgot Password</h3>
+            <p>Enter your email to receive a password reset link.</p>
+            <input type="email" placeholder="Enter Your Email" id="forgotEmail" required>
+            <button class="btn-primary" id="submitForgot">Send Reset Link</button>
+            <button class="btn-secondary" id="cancelForgot">Cancel</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="access-denied">
+            <svg viewBox="0 0 24 24">
+                <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h2>Access Denied</h2>
+            <p>Only lecturers can edit attendance status.</p>
+            <button onclick="closeOverlay()">Close</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, push, remove, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDPA9Y3zA8faJ0T8g1zP8PL4dtp_vTgmbs",
+            authDomain: "eco-survival-873ae.firebaseapp.com",
+            databaseURL: "https://eco-survival-873ae-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "eco-survival-873ae",
+            storageBucket: "eco-survival-873ae.firebasestorage.app",
+            messagingSenderId: "789575839689",
+            appId: "1:789575839689:web:cfa92a8ba066a26e818218"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        window.firebaseDB = {
+            ref, set, get, push, remove, onValue, update, database
+        };
+
+        window.firebaseReady = true;
+        console.log('✅ Firebase initialized');
+
+        // Initialize default admin
+        setTimeout(async () => {
+            try {
+                const usersRef = ref(database, 'users');
+                const snapshot = await get(usersRef);
+                
+                if (!snapshot.exists()) {
+                    const newUserRef = push(usersRef);
+                    await set(newUserRef, {
+                        email: 'admin@campus.ac.id',
+                        password: 'admin123',
+                        fullname: 'Administrator',
+                        idNumber: 'ADMIN001',
+                        role: 'admin'
+                    });
+                    console.log('✅ Default admin created');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }, 1000);
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        let firebaseReady = false;
+        let currentUserRole = '';
+        let currentUserEmail = '';
+        const checkFirebase = setInterval(() => {
+            if (window.firebaseReady) {
+                clearInterval(checkFirebase);
+                firebaseReady = true;
+                console.log('✅ Firebase ready');
+                startNotificationListener();
+            }
+        }, 100);
+
+        // Notification Listener
+        function startNotificationListener() {
+            const { database, ref, onValue } = window.firebaseDB;
+            const attendanceRef = ref(database, 'attendance');
+            
+            onValue(attendanceRef, (snapshot) => {
+                updateNotificationBadge();
+                updateNotificationList();
+            });
+        }
+
+        async function updateNotificationBadge() {
+            const { database, ref, get } = window.firebaseDB;
+            const attendanceRef = ref(database, 'attendance');
+            const snapshot = await get(attendanceRef);
+            
+            let unreadCount = 0;
+            
+            if (snapshot.exists()) {
+                const attendance = snapshot.val();
+                Object.values(attendance).forEach(record => {
+                    if (!record.read && record.status) {
+                        unreadCount++;
+                    }
+                });
+            }
+            
+            const badges = ['notifBadge', 'notifBadgeHome'];
+            badges.forEach(badgeId => {
+                const badge = document.getElementById(badgeId);
+                if (badge) {
+                    if (unreadCount > 0) {
+                        badge.textContent = unreadCount;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        async function updateNotificationList() {
+            const { database, ref, get } = window.firebaseDB;
+            const attendanceRef = ref(database, 'attendance');
+            const snapshot = await get(attendanceRef);
+            
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = '';
+            
+            if (snapshot.exists()) {
+                const attendance = snapshot.val();
+                const notifications = [];
+                
+                Object.entries(attendance).forEach(([key, record]) => {
+                    if (record.status) {
+                        notifications.push({
+                            key,
+                            ...record,
+                            timestamp: record.timestamp || Date.now()
+                        });
+                    }
+                });
+                
+                notifications.sort((a, b) => b.timestamp - a.timestamp);
+                
+                if (notifications.length === 0) {
+                    notificationList.innerHTML = '<div class="notification-item">No notifications</div>';
+                } else {
+                    notifications.forEach(notif => {
+                        const div = document.createElement('div');
+                        div.className = 'notification-item' + (!notif.read ? ' unread' : '');
+                        div.innerHTML = `
+                            <strong>${notif.lecturer}</strong><br>
+                            ${notif.subject} - ${notif.room}<br>
+                            Status: <strong>${notif.status}</strong><br>
+                            <small>${notif.date}</small>
+                        `;
+                        div.onclick = () => markAsRead(notif.key);
+                        notificationList.appendChild(div);
+                    });
+                }
+            } else {
+                notificationList.innerHTML = '<div class="notification-item">No notifications</div>';
+            }
+        }
+
+        async function markAsRead(key) {
+            const { database, ref, update } = window.firebaseDB;
+            const attendanceRef = ref(database, `attendance/${key}`);
+            await update(attendanceRef, { read: true });
+        }
+
+        // LOGIN HANDLER
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loadingMsg = document.getElementById('loadingMessage');
+            const loginBtn = document.getElementById('loginButton');
+            
+            loadingMsg.textContent = 'Logging in...';
+            loginBtn.disabled = true;
+            
+            try {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                while (!firebaseReady) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                const { database, ref, get } = window.firebaseDB;
+                const usersRef = ref(database, 'users');
+                const snapshot = await get(usersRef);
+                
+                let user = null;
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    for (let key in users) {
+                        if (users[key].email === email && users[key].password === password) {
+                            user = { ...users[key], key };
+                            break;
+                        }
+                    }
+                }
+                
+                if (user) {
+                    sessionStorage.setItem('userEmail', user.email);
+                    sessionStorage.setItem('userId', user.idNumber);
+                    sessionStorage.setItem('fullname', user.fullname);
+                    sessionStorage.setItem('userRole', user.role);
+                    currentUserRole = user.role;
+                    currentUserEmail = user.email;
+                    
+                    loadingMsg.textContent = 'Login successful!';
+                    
+                    setTimeout(() => {
+                        if (user.role === 'admin') {
+                            document.getElementById('adminMenuLink').style.display = 'block';
+                            showPage('adminPanel');
+                        } else {
+                            showPage('homepage');
+                        }
+                    }, 500);
+                } else {
+                    loadingMsg.textContent = 'Invalid email or password!';
+                    loginBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                loadingMsg.textContent = 'Error: ' + error.message;
+                loginBtn.disabled = false;
+            }
+        });
+
+        function showPage(pageName) {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('homepage').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('profilePage').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+            
+            document.getElementById(pageName).style.display = 'flex';
+            
+            if (pageName === 'dashboard') {
+                generateWeeklySchedule();
+            } else if (pageName === 'adminPanel') {
+                renderUsersTable();
+                renderSchedulesTable();
+            } else if (pageName === 'profilePage') {
+                // Show/hide download report button based on role
+                const role = sessionStorage.getItem('userRole');
+                const downloadBtn = document.getElementById('downloadReportBtn');
+                if (role === 'lecturer') {
+                    downloadBtn.style.display = 'inline-block';
+                } else {
+                    downloadBtn.style.display = 'none';
+                }
+            }
+        }
+
+        async function renderUsersTable() {
+            while (!firebaseReady) await new Promise(r => setTimeout(r, 100));
+            
+            const { database, ref, get } = window.firebaseDB;
+            const usersRef = ref(database, 'users');
+            const snapshot = await get(usersRef);
+            
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            
+            if (snapshot.exists()) {
+                const users = snapshot.val();
+                Object.keys(users).forEach(key => {
+                    const user = users[key];
+                    const row = `<tr>
+                        <td>${user.email}</td>
+                        <td>${user.fullname}</td>
+                        <td>${user.idNumber}</td>
+                        <td>${user.role}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editUser('${key}')">Edit</button>
+                            <button class="delete-btn" onclick="deleteUserConfirm('${key}')">Delete</button>
+                        </td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            }
+        }
+
+        async function renderSchedulesTable() {
+            while (!firebaseReady) await new Promise(r => setTimeout(r, 100));
+            
+            const { database, ref, get } = window.firebaseDB;
+            const schedulesRef = ref(database, 'schedules');
+            const snapshot = await get(schedulesRef);
+            
+            const tbody = document.getElementById('schedulesTableBody');
+            tbody.innerHTML = '';
+            
+            if (snapshot.exists()) {
+                const schedules = snapshot.val();
+                Object.keys(schedules).forEach(key => {
+                    const schedule = schedules[key];
+                    const row = `<tr>
+                        <td>${schedule.dosen}</td>
+                        <td>${schedule.matkul}</td>
+                        <td>${schedule.ruang}</td>
+                        <td>${schedule.hari.join(', ')}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editSchedule('${key}')">Edit</button>
+                            <button class="delete-btn" onclick="deleteScheduleConfirm('${key}')">Delete</button>
+                        </td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            }
+        }
+
+        async function generateWeeklySchedule() {
+            while (!firebaseReady) await new Promise(r => setTimeout(r, 100));
+            
+            const { database, ref, get } = window.firebaseDB;
+            const schedulesRef = ref(database, 'schedules');
+            const snapshot = await get(schedulesRef);
+            
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            const userRole = sessionStorage.getItem('userRole');
+            const userFullname = sessionStorage.getItem('fullname');
+            
+            if (snapshot.exists()) {
+                const schedules = snapshot.val();
+                const today = new Date();
+                
+                for (let i = 0; i < 7; i++) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() + i);
+                    const dayName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][date.getDay()];
+                    const formattedDate = `${dayName}, ${date.getDate().toString().padStart(2, '0')} ${['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'][date.getMonth()]} ${date.getFullYear()}`;
+                    
+                    Object.entries(schedules).forEach(([scheduleKey, schedule]) => {
+                        if (schedule.hari && schedule.hari.includes(dayName)) {
+                            const attendanceKey = `${scheduleKey}_${date.toISOString().split('T')[0]}`;
+                            
+                            // Check if attendance already exists
+                            const attendanceRef = ref(database, `attendance/${attendanceKey}`);
+                            get(attendanceRef).then((attendSnapshot) => {
+                                const existingStatus = attendSnapshot.exists() ? attendSnapshot.val().status : '';
+                                
+                                const isLecturer = userRole === 'lecturer' && schedule.dosen === userFullname;
+                                const disabledAttr = isLecturer ? '' : 'disabled';
+                                
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td>${formattedDate}</td>
+                                    <td>${schedule.dosen}</td>
+                                    <td>${schedule.matkul}</td>
+                                    <td>${schedule.ruang}</td>
+                                    <td>
+                                        <select class="attendance-select" data-key="${attendanceKey}" data-date="${formattedDate}" data-lecturer="${schedule.dosen}" data-subject="${schedule.matkul}" data-room="${schedule.ruang}" ${disabledAttr}>
+                                            <option value="">Select Status</option>
+                                            <option value="Present" ${existingStatus === 'Present' ? 'selected' : ''}>Present</option>
+                                            <option value="Can't Attend" ${existingStatus === "Can't Attend" ? 'selected' : ''}>Can't Attend</option>
+                                        </select>
+                                    </td>
+                                `;
+                                tbody.appendChild(row);
+                                
+                                // Add event listener for attendance change
+                                const select = row.querySelector('.attendance-select');
+                                select.addEventListener('change', async function() {
+                                    if (this.value) {
+                                        await saveAttendance(this);
+                                    }
+                                });
+                            });
+                        }
+                    });
+                }
+            }
+            
+            setTimeout(() => {
+                if (tbody.innerHTML === '') {
+                    tbody.innerHTML = '<tr><td colspan="5">No schedule available</td></tr>';
+                }
+            }, 1000);
+        }
+
+        async function saveAttendance(selectElement) {
+            const key = selectElement.dataset.key;
+            const status = selectElement.value;
+            const date = selectElement.dataset.date;
+            const lecturer = selectElement.dataset.lecturer;
+            const subject = selectElement.dataset.subject;
+            const room = selectElement.dataset.room;
+            
+            const { database, ref, set } = window.firebaseDB;
+            const attendanceRef = ref(database, `attendance/${key}`);
+            
+            await set(attendanceRef, {
+                status,
+                date,
+                lecturer,
+                subject,
+                room,
+                timestamp: Date.now(),
+                read: false
+            });
+            
+            alert('Attendance saved successfully!');
+        }
+
+        // Navigation
+        document.getElementById('goToDashboard').addEventListener('click', () => showPage('dashboard'));
+        document.getElementById('homeLink').addEventListener('click', () => {
+            showPage('homepage');
+            closeSidebar();
+        });
+        document.getElementById('dashboardLink').addEventListener('click', () => {
+            showPage('dashboard');
+            closeSidebar();
+        });
+        document.getElementById('adminLink').addEventListener('click', () => {
+            showPage('adminPanel');
+            closeSidebar();
+        });
+
+        // Notification toggle
+        function toggleNotification() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.style.display = dropdown.style.display === 'none' || !dropdown.style.display ? 'block' : 'none';
+        }
+
+        document.getElementById('notification').addEventListener('click', toggleNotification);
+        document.getElementById('notificationHome').addEventListener('click', toggleNotification);
+        document.getElementById('closeNotification').addEventListener('click', () => {
+            document.getElementById('notificationDropdown').style.display = 'none';
+        });
+
+        // Sidebar toggle functions
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('show');
+            document.getElementById('sidebarOverlay').classList.remove('show');
+        }
+
+        // Sidebar event listeners
+        document.getElementById('hamburger').addEventListener('click', toggleSidebar);
+        document.getElementById('hamburgerHome').addEventListener('click', toggleSidebar);
+        document.getElementById('hamburgerProfile').addEventListener('click', toggleSidebar);
+        document.getElementById('hamburgerAdmin').addEventListener('click', toggleSidebar);
+        document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+        // Logout
+        const logout = () => {
+            sessionStorage.clear();
+            document.getElementById('login').style.display = 'flex';
+            document.getElementById('homepage').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('profilePage').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('adminMenuLink').style.display = 'none';
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loadingMessage').textContent = '';
+            document.getElementById('loginButton').disabled = false;
+        };
+        document.getElementById('logout').addEventListener('click', logout);
+        document.getElementById('logoutAdmin').addEventListener('click', logout);
+
+        // Profile
+        document.getElementById('profile').addEventListener('click', () => {
+            document.getElementById('fullname').textContent = sessionStorage.getItem('fullname') || 'N/A';
+            document.getElementById('userId').textContent = sessionStorage.getItem('userId') || 'N/A';
+            document.getElementById('userEmail').textContent = sessionStorage.getItem('userEmail') || 'N/A';
+            showPage('profilePage');
+        });
+        document.getElementById('profileHome').addEventListener('click', () => {
+            document.getElementById('fullname').textContent = sessionStorage.getItem('fullname') || 'N/A';
+            document.getElementById('userId').textContent = sessionStorage.getItem('userId') || 'N/A';
+            document.getElementById('userEmail').textContent = sessionStorage.getItem('userEmail') || 'N/A';
+            showPage('profilePage');
+        });
+
+        // Reset Password Button
+        document.getElementById('resetPasswordBtn').addEventListener('click', () => {
+            document.getElementById('resetPasswordDialog').style.display = 'flex';
+        });
+
+        document.getElementById('cancelReset').addEventListener('click', () => {
+            document.getElementById('resetPasswordDialog').style.display = 'none';
+        });
+
+        document.getElementById('submitReset').addEventListener('click', async () => {
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                alert('Please fill all fields!');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match!');
+                return;
+            }
+            
+            try {
+                const { database, ref, get, update } = window.firebaseDB;
+                const usersRef = ref(database, 'users');
+                const snapshot = await get(usersRef);
+                
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    const userEmail = sessionStorage.getItem('userEmail');
+                    
+                    for (let key in users) {
+                        if (users[key].email === userEmail) {
+                            if (users[key].password === oldPassword) {
+                                const userRef = ref(database, `users/${key}`);
+                                await update(userRef, { password: newPassword });
+                                alert('Password reset successfully!');
+                                document.getElementById('resetPasswordDialog').style.display = 'none';
+                                document.getElementById('oldPassword').value = '';
+                                document.getElementById('newPassword').value = '';
+                                document.getElementById('confirmPassword').value = '';
+                                return;
+                            } else {
+                                alert('Old password is incorrect!');
+                                return;
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Forgot Password Link
+        document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('forgotPasswordDialog').style.display = 'flex';
+        });
+
+        document.getElementById('cancelForgot').addEventListener('click', () => {
+            document.getElementById('forgotPasswordDialog').style.display = 'none';
+        });
+
+        document.getElementById('submitForgot').addEventListener('click', () => {
+            const email = document.getElementById('forgotEmail').value;
+            if (email) {
+                alert(`Password reset link has been sent to ${email}`);
+                document.getElementById('forgotPasswordDialog').style.display = 'none';
+                document.getElementById('forgotEmail').value = '';
+            } else {
+                alert('Please enter your email!');
+            }
+        });
+
+        // Download Monthly Report (PDF)
+        document.getElementById('downloadReportBtn').addEventListener('click', async () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const fullname = sessionStorage.getItem('fullname');
+            const currentDate = new Date();
+            const monthYear = currentDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            
+            doc.setFontSize(16);
+            doc.text('Monthly Attendance Report', 105, 20, { align: 'center' });
+            doc.setFontSize(12);
+            doc.text(`Lecturer: ${fullname}`, 20, 35);
+            doc.text(`Period: ${monthYear}`, 20, 45);
+            
+            // Get attendance data
+            const { database, ref, get } = window.firebaseDB;
+            const attendanceRef = ref(database, 'attendance');
+            const snapshot = await get(attendanceRef);
+            
+            let yPos = 60;
+            let recordCount = 0;
+            
+            if (snapshot.exists()) {
+                const attendance = snapshot.val();
+                doc.setFontSize(10);
+                doc.text('Date', 20, yPos);
+                doc.text('Subject', 60, yPos);
+                doc.text('Room', 110, yPos);
+                doc.text('Status', 150, yPos);
+                yPos += 10;
+                
+                Object.values(attendance).forEach(record => {
+                    if (record.lecturer === fullname) {
+                        if (yPos > 270) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+                        doc.text(record.date.substring(0, 20), 20, yPos);
+                        doc.text(record.subject, 60, yPos);
+                        doc.text(record.room, 110, yPos);
+                        doc.text(record.status, 150, yPos);
+                        yPos += 7;
+                        recordCount++;
+                    }
+                });
+            }
+            
+            if (recordCount === 0) {
+                doc.text('No attendance records found for this month.', 20, yPos);
+            }
+            
+            doc.save(`Monthly_Report_${fullname}_${monthYear}.pdf`);
+        });
+
+        // Close overlay
+        window.closeOverlay = () => document.getElementById('overlay').classList.remove('show');
+
+        // Tab switching
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
+            });
+        });
+
+        // Add User Button
+        document.getElementById('addUserBtn').addEventListener('click', async () => {
+            document.getElementById('userDialogTitle').textContent = 'Add New User';
+            document.getElementById('userForm').reset();
+            document.getElementById('userFormKey').value = '';
+            document.getElementById('userDialog').style.display = 'flex';
+        });
+
+        // Cancel User Form
+        document.getElementById('cancelUserForm').addEventListener('click', () => {
+            document.getElementById('userDialog').style.display = 'none';
+        });
+
+        // User Form Submit
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('userFormEmail').value;
+            const password = document.getElementById('userFormPassword').value;
+            const fullname = document.getElementById('userFormName').value;
+            const idNumber = document.getElementById('userFormId').value;
+            const role = document.getElementById('userFormRole').value;
+            const key = document.getElementById('userFormKey').value;
+            
+            try {
+                const { database, ref, set, push } = window.firebaseDB;
+                
+                if (key) {
+                    const userRef = ref(database, `users/${key}`);
+                    await set(userRef, { email, password, fullname, idNumber, role });
+                    alert('User updated successfully!');
+                } else {
+                    const usersRef = ref(database, 'users');
+                    const newUserRef = push(usersRef);
+                    await set(newUserRef, { email, password, fullname, idNumber, role });
+                    alert('User added successfully!');
+                }
+                
+                document.getElementById('userDialog').style.display = 'none';
+                renderUsersTable();
+            } catch (error) {
+                console.error('Error saving user:', error);
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Edit User Function
+        window.editUser = async (key) => {
+            const { database, ref, get } = window.firebaseDB;
+            const userRef = ref(database, `users/${key}`);
+            const snapshot = await get(userRef);
+            
+            if (snapshot.exists()) {
+                const user = snapshot.val();
+                document.getElementById('userDialogTitle').textContent = 'Edit User';
+                document.getElementById('userFormEmail').value = user.email;
+                document.getElementById('userFormPassword').value = user.password;
+                document.getElementById('userFormName').value = user.fullname;
+                document.getElementById('userFormId').value = user.idNumber;
+                document.getElementById('userFormRole').value = user.role;
+                document.getElementById('userFormKey').value = key;
+                document.getElementById('userDialog').style.display = 'flex';
+            }
+        };
+
+        // Delete User Function
+        window.deleteUserConfirm = async (key) => {
+            if (confirm('Are you sure you want to delete this user?')) {
+                try {
+                    const { database, ref, remove } = window.firebaseDB;
+                    const userRef = ref(database, `users/${key}`);
+                    await remove(userRef);
+                    alert('User deleted successfully!');
+                    renderUsersTable();
+                } catch (error) {
+                    console.error('Error deleting user:', error);
+                    alert('Error: ' + error.message);
+                }
+            }
+        };
+
+        // Add Schedule Button
+        document.getElementById('addScheduleBtn').addEventListener('click', async () => {
+            document.getElementById('scheduleDialogTitle').textContent = 'Add New Schedule';
+            document.getElementById('scheduleForm').reset();
+            document.getElementById('scheduleFormKey').value = '';
+            await populateLecturerDropdown();
+            document.getElementById('scheduleDialog').style.display = 'flex';
+        });
+
+        // Populate Lecturer Dropdown
+        async function populateLecturerDropdown() {
+            const { database, ref, get } = window.firebaseDB;
+            const usersRef = ref(database, 'users');
+            const snapshot = await get(usersRef);
+            
+            const select = document.getElementById('scheduleFormLecturer');
+            select.innerHTML = '<option value="">Select Lecturer</option>';
+            
+            if (snapshot.exists()) {
+                const users = snapshot.val();
+                Object.values(users).forEach(user => {
+                    if (user.role === 'lecturer') {
+                        const option = document.createElement('option');
+                        option.value = user.fullname;
+                        option.textContent = user.fullname;
+                        select.appendChild(option);
+                    }
+                });
+            }
+        }
+
+        // Cancel Schedule Form
+        document.getElementById('cancelScheduleForm').addEventListener('click', () => {
+            document.getElementById('scheduleDialog').style.display = 'none';
+        });
+
+        // Schedule Form Submit
+        document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const dosen = document.getElementById('scheduleFormLecturer').value;
+            const matkul = document.getElementById('scheduleFormSubject').value;
+            const ruang = document.getElementById('scheduleFormRoom').value;
+            const key = document.getElementById('scheduleFormKey').value;
+            
+            const checkboxes = document.querySelectorAll('#daysCheckboxGroup input[name="days"]:checked');
+            const hari = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (hari.length === 0) {
+                alert('Please select at least one day!');
+                return;
+            }
+            
+            try {
+                const { database, ref, set, push } = window.firebaseDB;
+                
+                if (key) {
+                    const scheduleRef = ref(database, `schedules/${key}`);
+                    await set(scheduleRef, { dosen, matkul, ruang, hari });
+                    alert('Schedule updated successfully!');
+                } else {
+                    const schedulesRef = ref(database, 'schedules');
+                    const newScheduleRef = push(schedulesRef);
+                    await set(newScheduleRef, { dosen, matkul, ruang, hari });
+                    alert('Schedule added successfully!');
+                }
+                
+                document.getElementById('scheduleDialog').style.display = 'none';
+                renderSchedulesTable();
+            } catch (error) {
+                console.error('Error saving schedule:', error);
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Edit Schedule Function
+        window.editSchedule = async (key) => {
+            const { database, ref, get } = window.firebaseDB;
+            const scheduleRef = ref(database, `schedules/${key}`);
+            const snapshot = await get(scheduleRef);
+            
+            if (snapshot.exists()) {
+                const schedule = snapshot.val();
+                document.getElementById('scheduleDialogTitle').textContent = 'Edit Schedule';
+                
+                await populateLecturerDropdown();
+                
+                document.getElementById('scheduleFormLecturer').value = schedule.dosen;
+                document.getElementById('scheduleFormSubject').value = schedule.matkul;
+                document.getElementById('scheduleFormRoom').value = schedule.ruang;
+                document.getElementById('scheduleFormKey').value = key;
+                
+                // Uncheck all days first
+                document.querySelectorAll('#daysCheckboxGroup input[name="days"]').forEach(cb => {
+                    cb.checked = false;
+                });
+                
+                // Check the selected days
+                schedule.hari.forEach(day => {
+                    const checkbox = document.querySelector(`#daysCheckboxGroup input[value="${day}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                
+                document.getElementById('scheduleDialog').style.display = 'flex';
+            }
+        };
+
+        // Delete Schedule Function
+        window.deleteScheduleConfirm = async (key) => {
+            if (confirm('Are you sure you want to delete this schedule?')) {
+                try {
+                    const { database, ref, remove } = window.firebaseDB;
+                    const scheduleRef = ref(database, `schedules/${key}`);
+                    await remove(scheduleRef);
+                    alert('Schedule deleted successfully!');
+                    renderSchedulesTable();
+                } catch (error) {
+                    console.error('Error deleting schedule:', error);
+                    alert('Error: ' + error.message);
+                }
+            }
+        };
+
+        console.log('✅ App initialized');
+    </script>
+</body>
+</html>
